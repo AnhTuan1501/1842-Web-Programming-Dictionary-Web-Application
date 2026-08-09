@@ -4,13 +4,14 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/home/HomeView.vue'
 import AboutView from '../views/home/AboutView.vue'
 import NotFoundView from '../views/home/NotFoundView.vue'
-
-import BooksView from '../views/books/BooksView.vue'
-import BookDetailsView from '../views/books/BookDetailsView.vue'
-import CreateBookView from '../views/books/CreateBookView.vue'
-import EditBookView from '../views/books/EditBookView.vue'
 import LoginView from '../views/home/LoginView.vue'
 import RegisterView from '../views/home/RegisterView.vue'
+
+import WordsView from '../views/words/WordsView.vue'
+import WordDetailsView from '../views/words/WordDetailsView.vue'
+import CreateWordView from '../views/words/CreateWordView.vue'
+import EditWordView from '../views/words/EditWordView.vue'
+
 
 const routes = [
     {
@@ -24,28 +25,28 @@ const routes = [
         component: AboutView
     },
     {
-        path: '/books',
-        name: 'books',
-        component: BooksView
+        path: '/words',
+        name: 'words',
+        component: WordsView
     },
     {
-        path: '/books/create',
-        name: 'create-book',
-        component: CreateBookView,
+        path: '/words/create',
+        name: 'create-word',
+        component: CreateWordView,
         meta: {
             requiresAuth: true,
             roles: ['admin']
         }
     },
     {
-        path: '/books/:id',
-        name: 'book-details',
-        component: BookDetailsView
+        path: '/words/:id',
+        name: 'word-details',
+        component: WordDetailsView
     },
     {
-        path: '/books/:id/edit',
-        name: 'edit-book',
-        component: EditBookView,
+        path: '/words/:id/edit',
+        name: 'edit-word',
+        component: EditWordView,
         meta: {
             requiresAuth: true,
             roles: ['admin']
@@ -101,13 +102,13 @@ router.beforeEach((to) => {
         !to.meta.roles.includes(user?.role)
     ) {
         return {
-            name: 'books'
+            name: 'words'
         }
     }
 
     if (to.meta.guestOnly && user) {
         return {
-            name: 'books'
+            name: 'words'
         }
     }
 })

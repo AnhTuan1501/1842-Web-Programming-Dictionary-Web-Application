@@ -28,7 +28,7 @@ function handleLogout() {
                         <RouterLink class="nav-link" to="/about">About</RouterLink>
                     </li>
                     <li class="nav-item">
-                        <RouterLink class="nav-link" to="/books">Books</RouterLink>
+                        <RouterLink class="nav-link" to="/words">Dictionary</RouterLink>
                     </li>
                 </ul>
             </div>

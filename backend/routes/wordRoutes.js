@@ -1,31 +1,31 @@
 import express from 'express'
 
-import { getAllBooks, getBookById, createBook, updateBook, deleteBook } from '../controllers/bookController.js'
+import { getAllWords, getWordById, createWord, updateWord, deleteWord } from '../controllers/wordController.js'
 import { protect, authorize } from '../middleware/authMiddleware.js'
 
 const router = express.Router()
 
 router
     .route('/')
-    .get(getAllBooks)
+    .get(getAllWords)
     .post(
         protect,
         authorize('admin'),
-        createBook
+        createWord
     )
 
 router
     .route('/:id')
-    .get(getBookById)
+    .get(getWordById)
     .put(
         protect,
         authorize('admin'),
-        updateBook
+        updateWord
     )
     .delete(
         protect,
         authorize('admin'),
-        deleteBook
+        deleteWord
     )
 
 export default router

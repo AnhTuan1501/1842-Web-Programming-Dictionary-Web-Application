@@ -1,7 +1,6 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-
 import api from '../../services/api'
 import { saveLogin } from '../../services/auth'
 import { apiRegister } from '../../services/authApi'
@@ -30,7 +29,7 @@ async function register() {
             response.data.user
         )
 
-        router.push('/books')
+        router.push('/words')
     } catch (error) {
         errorMessage.value =
             error.response?.data?.message ||

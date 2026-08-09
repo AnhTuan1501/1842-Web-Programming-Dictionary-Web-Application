@@ -28,7 +28,7 @@ async function login() {
             response.data.user
         )
 
-        router.push('/books')
+        router.push('/words')
     } catch (error) {
         errorMessage.value =
             error.response?.data?.message ||

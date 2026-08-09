@@ -4,7 +4,7 @@ import express from 'express'
 import mongoose from 'mongoose'
 import dns from 'dns'
 import authRoutes from './routes/authRoutes.js'
-import bookRoutes from './routes/bookRoutes.js'
+import wordRoutes from './routes/wordRoutes.js'
 
 dns.setServers(['8.8.8.8'])
 
@@ -16,11 +16,11 @@ app.use(cors())
 app.use(express.json())
 
 app.get('/', (req, res) => {
-    res.send('Book Management System')
+    res.send('Dictionary Management System')
 })
 
 app.use('/api/auth', authRoutes)
-app.use('/api/books', bookRoutes)
+app.use('/api/words', wordRoutes)
 
 async function startServer() {
     try {
