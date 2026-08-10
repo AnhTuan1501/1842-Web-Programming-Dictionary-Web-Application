@@ -12,14 +12,20 @@ async function loadWords() {
     words.value = response.data
 }
 
-async function handleSearch() {
-    if (!search.value.trim()) {
-        searchResults.value = []
-        return
-    }
+let searchTimeout = null
 
-    const response = await apiGetWords(search.value)
-    searchResults.value = response.data
+function handleSearch() {
+    clearTimeout(searchTimeout)
+
+    searchTimeout = setTimeout(async () => {
+        if (!search.value.trim()) {
+            searchResults.value = []
+            return
+        }
+
+        const response = await apiGetWords(search.value)
+        searchResults.value = response.data
+    }, 100)
 }
 
 async function removeWord(id) {

@@ -3,15 +3,17 @@ import Word from "../models/wordModel.js";
 
 // GET /api/words
 // GET /api/words
+// GET /api/words
 export async function getAllWords(req, res) {
     try {
         const { search } = req.query
-
         const filter = {}
 
         if (search) {
+            const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
             filter.word = {
-                $regex: search,
+                $regex: `^${escapedSearch}`,
                 $options: 'i'
             }
         }
