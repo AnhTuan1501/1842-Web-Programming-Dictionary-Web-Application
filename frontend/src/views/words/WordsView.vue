@@ -1,32 +1,42 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
-
-import { apiGetWords, apiDeleteWord, apiBulkDeleteWords } from '../../services/wordApi'
-import { apiGetRecents, apiGetFavourites } from '../../services/userApi'
-import { isAdmin, isLoggedIn } from '../../services/auth'
+import {apiGetWords,apiDeleteWord,apiBulkDeleteWords} from '../../services/wordApi'
+import {apiGetRecents,apiGetFavourites} from '../../services/userApi'
+import {isAdmin,isLoggedIn} from '../../services/auth'
 
 const route = useRoute()
-
 const words = ref([])
 const search = ref('')
 const searchResults = ref([])
 const language = ref(route.query.language || 'English')
 const sort = ref('')
-const filter = ref('all')
+const filter = ref(route.query.view === 'recent' ||route.query.view === 'favourite'? route.query.view: 'all')
 const selectedIds = ref([])
+const errorMessage = ref('')
 
 async function loadWords() {
     console.log('LOAD WORDS:', language.value)
 
     try {
-        const response = await apiGetWords('', language.value)
+        const response = await apiGetWords(
+            '',
+            language.value
+        )
 
         console.log('RESPONSE:', response)
 
         words.value = response.data
     } catch (error) {
-        console.error('LOAD WORDS ERROR:', error)
+        console.error(
+            'LOAD WORDS ERROR:',
+            error
+        )
+
+        errorMessage.value =
+            error.response?.data?.message ||
+            error.message ||
+            'Failed to load words.'
     }
 }
 
@@ -41,25 +51,34 @@ function handleSearch() {
             return
         }
 
-        const response = await apiGetWords(
-            search.value,
-            language.value
-        )
+        try {
+            const response = await apiGetWords(
+                search.value,
+                language.value
+            )
 
-        searchResults.value = response.data
+            searchResults.value = response.data
+        } catch (error) {
+            console.error(
+                'SEARCH WORDS ERROR:',
+                error
+            )
+        }
     }, 100)
 }
 
 function handleSort() {
     if (sort.value === 'az') {
-        words.value = [...words.value].sort((a, b) =>
-            a.word.localeCompare(b.word)
+        words.value = [...words.value].sort(
+            (a, b) =>
+                a.word.localeCompare(b.word)
         )
     }
 
     if (sort.value === 'za') {
-        words.value = [...words.value].sort((a, b) =>
-            b.word.localeCompare(a.word)
+        words.value = [...words.value].sort(
+            (a, b) =>
+                b.word.localeCompare(a.word)
         )
     }
 }
@@ -67,64 +86,120 @@ function handleSort() {
 async function handleFilter() {
     const currentLanguage = language.value
 
-    if (filter.value === 'all') {
-        await loadWords()
-        return
-    }
+    try {
+        errorMessage.value = ''
 
-    if (!isLoggedIn.value) {
-        words.value = []
-        return
-    }
+        if (filter.value === 'all') {
+            await loadWords()
+            return
+        }
 
-    if (filter.value === 'recent') {
-        const response = await apiGetRecents()
+        if (!isLoggedIn.value) {
+            words.value = []
+            return
+        }
 
-        words.value = response.data.filter(
-            word => word.language === currentLanguage
+        if (filter.value === 'recent') {
+            const response = await apiGetRecents()
+
+            words.value = response.data.filter(
+                word =>
+                    word.language === currentLanguage
+            )
+
+            return
+        }
+
+        if (filter.value === 'favourite') {
+            const response = await apiGetFavourites()
+
+            words.value = response.data.filter(
+                word =>
+                    word.language === currentLanguage
+            )
+        }
+    } catch (error) {
+        console.error(
+            'FILTER WORDS ERROR:',
+            error
         )
 
-        return
-    }
-
-    if (filter.value === 'favourite') {
-        const response = await apiGetFavourites()
-
-        words.value = response.data.filter(
-            word => word.language === currentLanguage
-        )
+        errorMessage.value =
+            error.response?.data?.message ||
+            error.message ||
+            'Failed to load filtered words.'
     }
 }
 
 async function removeWord(id) {
-    const confirmed = confirm('Are you sure to delete this word?')
-
-    if (!confirmed)
-        return
-
-    await apiDeleteWord(id)
-
-    words.value = words.value.filter(
-        word => word._id !== id
+    const confirmed = confirm(
+        'Are you sure to delete this word?'
     )
+
+    if (!confirmed) {
+        return
+    }
+
+    try {
+        await apiDeleteWord(id)
+
+        words.value = words.value.filter(
+            word => word._id !== id
+        )
+    } catch (error) {
+        console.error(
+            'DELETE WORD ERROR:',
+            error
+        )
+
+        errorMessage.value =
+            error.response?.data?.message ||
+            error.message ||
+            'Failed to delete word.'
+    }
 }
 
 watch(
     () => route.query.language,
-    async (newLanguage) => {
-        language.value = newLanguage || 'English'
-        filter.value = 'all'
+    async newLanguage => {
+        language.value =
+            newLanguage || 'English'
+
         sort.value = ''
 
-        await loadWords()
+        await handleFilter()
+    }
+)
+
+watch(
+    () => route.query.view,
+    async newView => {
+        if (
+            newView === 'recent' ||
+            newView === 'favourite'
+        ) {
+            filter.value = newView
+        } else {
+            filter.value = 'all'
+        }
+
+        sort.value = ''
+
+        await handleFilter()
     }
 )
 
 function toggleSelectAll() {
-    if (selectedIds.value.length === words.value.length) {
+    if (
+        selectedIds.value.length ===
+        words.value.length
+    ) {
         selectedIds.value = []
     } else {
-        selectedIds.value = words.value.map(word => word._id)
+        selectedIds.value =
+            words.value.map(
+                word => word._id
+            )
     }
 }
 
@@ -142,13 +217,18 @@ async function handleBulkDelete() {
     }
 
     try {
-        await apiBulkDeleteWords(selectedIds.value)
+        await apiBulkDeleteWords(
+            selectedIds.value
+        )
 
         selectedIds.value = []
 
-        await loadWords()
+        await handleFilter()
     } catch (error) {
-        console.error('BULK DELETE ERROR:', error)
+        console.error(
+            'BULK DELETE ERROR:',
+            error
+        )
 
         errorMessage.value =
             error.response?.data?.message ||
@@ -156,7 +236,9 @@ async function handleBulkDelete() {
     }
 }
 
-onMounted(loadWords)
+onMounted(async () => {
+    await handleFilter()
+})
 </script>
 
 <template>
