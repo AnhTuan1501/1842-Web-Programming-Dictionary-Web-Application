@@ -39,7 +39,10 @@ export async function createWord(req, res) {
     try {
         const word = new Word({
             word: req.body.word,
-            meaning: req.body.meaning
+            meaning: req.body.meaning,
+            example: req.body.example,
+            synonyms: req.body.synonyms,
+            language: req.body.language
         })
 
         const savedWord = await word.save()
@@ -72,7 +75,10 @@ export async function updateWord(req, res) {
             req.params.id,
             {
                 word: req.body.word,
-                meaning: req.body.meaning
+                meaning: req.body.meaning,
+                example: req.body.example,
+                synonyms: req.body.synonyms,
+                language: req.body.language
             },
             {
                 new: true,

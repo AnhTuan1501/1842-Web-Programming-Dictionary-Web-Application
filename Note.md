@@ -1563,4 +1563,22 @@ MONGODB
 
 # TODO: (Deepdive later):
 
-#
+# Bug 
+BUG — Create → Details timing
+
+Observed:
+Create Word
+→ navigate to Details
+→ temporarily "Word Not Found"
+→ shortly after data appears
+
+Current status:
+⚠️ Not blocking CRUD
+⚠️ Not investigated
+
+Known:
+addWord() uses await apiCreateWord()
+wordController uses await word.save()
+
+Action:
+→ Investigate during Code Polish / Bug Fix

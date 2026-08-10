@@ -28,7 +28,7 @@ onMounted(loadWords)
 
 <template>
     <div>
-        <h1>Word List</h1>
+        <h1>Dictionary</h1>
 
         <RouterLink v-if="isAdmin" to="/words/create" class="btn btn-success mb-3">
             Create
@@ -36,16 +36,13 @@ onMounted(loadWords)
 
         <table class="table table-hover">
             <tr>
-                <th>ID</th>
                 <th>Word</th>
-                <th>Meaning</th>
+                <th>Language</th>
                 <th>Action</th>
             </tr>
-
             <tr v-for="word in words" :key="word._id">
-                <td>{{ word._id }}</td>
                 <td>{{ word.word }}</td>
-                <td>{{ word.meaning }}</td>
+                <td>{{ word.language }}</td>
                 <td>
                     <RouterLink :to="{
                         name: 'word-details',

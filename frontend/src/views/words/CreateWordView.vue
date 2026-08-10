@@ -7,6 +7,9 @@ const router = useRouter()
 
 const word = ref('')
 const meaning = ref('')
+const example = ref('')
+const synonyms = ref('')
+const language = ref('')
 const errorMessage = ref('')
 
 async function addWord() {
@@ -14,9 +17,15 @@ async function addWord() {
         errorMessage.value = ''
 
         const response = await apiCreateWord({
-            word: word.value,
-            meaning: meaning.value
-        })
+        word: word.value,
+        meaning: meaning.value,
+        example: example.value,
+        synonyms: synonyms.value
+            .split(',')
+            .map(s => s.trim())
+            .filter(Boolean),
+        language: language.value
+    })
 
         router.push(`/words/${response.data._id}`)
     } catch (error) {
@@ -43,6 +52,26 @@ async function addWord() {
         <div class="mb-3">
             <label for="">Definition</label>
             <input type="text" v-model="meaning" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label for="">Example</label>
+            <input type="text" v-model="example" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label for="">Synonyms</label>
+            <input type="text" v-model="synonyms" class="form-control">
+        </div>
+        
+        <div class="mb-3">
+            <label for="">Language</label>
+            <select v-model="language" class="form-select">
+            <option value="">Select language</option>
+            <option value="English">English</option>
+            <option value="Vietnamese">Vietnamese</option>
+            <option value="French">French</option>
+        </select>
         </div>
 
         <div class="mb-3">

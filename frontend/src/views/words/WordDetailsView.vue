@@ -17,9 +17,25 @@ onMounted(loadWord)
 <template>
     <h1>Word Details</h1>
     <div v-if="word">
-        <div>ID: {{ word._id }}</div>
-        <div>Word: {{ word.word }}</div>
-        <div>Meaning: {{ word.meaning }}</div>
+        <div> 
+            <strong>ID: </strong> {{ word._id }} 
+        </div>
+        <div>     
+            <strong>Word: </strong>{{ word.word }}
+        </div>
+        <div>     
+            <strong>Meaning: </strong>{{ word.meaning }}</div>
+        <div>     
+            <strong>Example: </strong>{{ word.example }}</div>
+       <div>
+        <strong>Synonyms: </strong>
+        <span v-for="(synonym, index) in word.synonyms" :key="synonym">
+        {{ synonym }}<span v-if="index < word.synonyms.length - 1">, </span>
+        </span>
+        </div>
+        <div>  
+            <strong>Language: </strong>{{ word.language }}
+        </div>
     </div>
 
     <div v-else>Word Not Found !!!</div>
