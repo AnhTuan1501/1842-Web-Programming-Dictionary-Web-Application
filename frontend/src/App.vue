@@ -24,8 +24,20 @@ function handleLogout() {
                     Home
                 </RouterLink>
 
-                <RouterLink class="nav-link" to="/about">
-                    About
+              <RouterLink
+                    v-if="isLoggedIn && !isAdmin"
+                    class="nav-link"
+                    to="/user-hub"
+                >
+                    User Hub
+                </RouterLink>
+
+                <RouterLink
+                    v-if="isAdmin"
+                    class="nav-link"
+                    to="/admin-hub"
+                >
+                    Admin Hub
                 </RouterLink>
 
                 <div class="nav-item dropdown">

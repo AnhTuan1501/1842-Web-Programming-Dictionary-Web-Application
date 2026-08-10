@@ -1582,3 +1582,6 @@ wordController uses await word.save()
 
 Action:
 → Investigate during Code Polish / Bug Fix
+
+Bug 2
+Turn of report and favourite for admin

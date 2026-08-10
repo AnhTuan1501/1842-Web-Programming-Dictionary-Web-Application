@@ -1,8 +1,7 @@
 // npm install express mongoose cors dotenv
 import Word from "../models/wordModel.js";
+import { createAuditLog } from './auditLogController.js'
 
-// GET /api/words
-// GET /api/words
 // GET /api/words
 export async function getAllWords(req, res) {
     try {
@@ -66,9 +65,15 @@ export async function createWord(req, res) {
 
         const savedWord = await word.save()
 
+        await createAuditLog({
+            userId: req.user._id,
+            action: 'CREATE',
+            wordId: savedWord._id,
+            details: `Created word: ${savedWord.word}`
+        })
+
         res.status(201).json(savedWord)
-    } 
-    catch (error) {
+    } catch (error) {
         if (error.name === 'ValidationError') {
             const errors = Object.values(error.errors).map(
                 err => err.message
@@ -111,9 +116,15 @@ export async function updateWord(req, res) {
             })
         }
 
+        await createAuditLog({
+            userId: req.user._id,
+            action: 'UPDATE',
+            wordId: updatedWord._id,
+            details: `Updated word: ${updatedWord.word}`
+        })
+
         res.json(updatedWord)
-    } 
-    catch (error) {
+    } catch (error) {
         if (error.name === 'ValidationError') {
             const errors = Object.values(error.errors).map(
                 err => err.message
@@ -131,7 +142,6 @@ export async function updateWord(req, res) {
         })
     }
 }
-              
 
 // DELETE /api/words/:id
 export async function deleteWord(req, res) {
@@ -143,6 +153,13 @@ export async function deleteWord(req, res) {
                 message: 'Word not found.'
             })
         }
+
+        await createAuditLog({
+            userId: req.user._id,
+            action: 'DELETE',
+            wordId: deletedWord._id,
+            details: `Deleted word: ${deletedWord.word}`
+        })
 
         res.json({
             message: 'Word deleted successfully.'

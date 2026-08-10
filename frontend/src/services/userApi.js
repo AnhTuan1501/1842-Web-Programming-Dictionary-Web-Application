@@ -19,3 +19,11 @@ export async function apiAddRecent(wordId) {
 export async function apiGetRecents() {
     return api.get('/users/recent')
 }
+
+export async function apiCreateReport(wordId, reason, description) {
+    return api.post('/reports', {
+        wordId,
+        reason,
+        description
+    })
+}

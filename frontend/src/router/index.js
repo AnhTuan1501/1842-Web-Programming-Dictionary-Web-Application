@@ -12,6 +12,9 @@ import WordDetailsView from '../views/words/WordDetailsView.vue'
 import CreateWordView from '../views/words/CreateWordView.vue'
 import EditWordView from '../views/words/EditWordView.vue'
 
+import UserHubView from '../views/user/UserHubView.vue'
+import AdminHubView from '../views/admin/AdminHubView.vue'
+
 
 const routes = [
     {
@@ -68,12 +71,30 @@ const routes = [
             guestOnly: true
         }
     },
+    {
+        path: '/user-hub',
+        name: 'user-hub',
+        component: UserHubView,
+        meta: {
+            requiresAuth: true
+        }
+    },
+    {
+        path: '/admin-hub',
+        name: 'admin-hub',
+        component: AdminHubView,
+        meta: {
+            requiresAuth: true,
+            roles: ['admin']
+        }
+    },
+
     // Must be the last one.
     {
         path: '/:pathMatch(.*)*',
         name: 'not-found',
         component: NotFoundView
-    }
+    },
 ]
 
 const router = createRouter({
