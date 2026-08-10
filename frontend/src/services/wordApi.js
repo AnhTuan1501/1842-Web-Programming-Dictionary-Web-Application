@@ -1,7 +1,11 @@
 import api from './api'
 
-export function apiGetWords() {
-    return api.get('/words')
+export function apiGetWords(search = '') {
+    return api.get('/words', {
+        params: {
+            search
+        }
+    })
 }
 
 export function apiGetWord(id) {

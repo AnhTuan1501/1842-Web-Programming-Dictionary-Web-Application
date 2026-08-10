@@ -2,9 +2,22 @@
 import Word from "../models/wordModel.js";
 
 // GET /api/words
+// GET /api/words
 export async function getAllWords(req, res) {
     try {
-        const words = await Word.find()
+        const { search } = req.query
+
+        const filter = {}
+
+        if (search) {
+            filter.word = {
+                $regex: search,
+                $options: 'i'
+            }
+        }
+
+        const words = await Word.find(filter)
+
         res.json(words)
     } catch (error) {
         res.status(500).json({
