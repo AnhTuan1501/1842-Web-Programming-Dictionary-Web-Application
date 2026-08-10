@@ -15,7 +15,9 @@ const auditLogSchema = new mongoose.Schema(
                 'CREATE',
                 'UPDATE',
                 'DELETE',
-                'BULK_DELETE'
+                'BULK_DELETE',
+                'REPORT_RESOLVE',
+                'REPORT_REJECT'
             ]
         },
 

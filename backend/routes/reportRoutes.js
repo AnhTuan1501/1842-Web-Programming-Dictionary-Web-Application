@@ -1,11 +1,6 @@
 import express from 'express'
 
-import {
-    createReport,
-    getReports,
-    resolveReport,
-    rejectReport
-} from '../controllers/reportController.js'
+import {createReport, getReports, resolveReport, rejectReport, getMyReports} from '../controllers/reportController.js'
 
 import { protect, authorize } from '../middleware/authMiddleware.js'
 
@@ -24,6 +19,13 @@ router.get(
     protect,
     authorize('admin'),
     getReports
+)
+
+// User views their own reports status
+router.get(
+    '/my',
+    protect,
+    getMyReports
 )
 
 // Admin resolves a report

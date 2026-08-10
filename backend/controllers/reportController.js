@@ -1,5 +1,6 @@
 import Report from '../models/reportModel.js'
 import Word from '../models/wordModel.js'
+import { createAuditLog } from './auditLogController.js'
 
 // POST /api/reports
 export async function createReport(req, res) {
@@ -77,6 +78,13 @@ export async function resolveReport(req, res) {
             })
         }
 
+        await createAuditLog({
+            userId: req.user._id,
+            action: 'REPORT_RESOLVE',
+            wordId: report.wordId,
+            details: `Resolved report: ${report._id}`
+        })
+
         res.json(report)
     } catch (error) {
         res.status(500).json({
@@ -105,10 +113,35 @@ export async function rejectReport(req, res) {
             })
         }
 
+        await createAuditLog({
+            userId: req.user._id,
+            action: 'REPORT_REJECT',
+            wordId: report.wordId,
+            details: `Rejected report: ${report._id}`
+        })
+
         res.json(report)
     } catch (error) {
         res.status(500).json({
             message: 'Cannot reject report.',
+            error: error.message
+        })
+    }
+}
+
+// GET /api/reports/my
+export async function getMyReports(req, res) {
+    try {
+        const reports = await Report.find({
+            userId: req.user._id
+        })
+            .populate('wordId', 'word language')
+            .sort({ createdAt: -1 })
+
+        res.json(reports)
+    } catch (error) {
+        res.status(500).json({
+            message: 'Cannot retrieve your reports.',
             error: error.message
         })
     }
