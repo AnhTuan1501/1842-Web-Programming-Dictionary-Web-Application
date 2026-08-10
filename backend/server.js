@@ -5,6 +5,7 @@ import mongoose from 'mongoose'
 import dns from 'dns'
 import authRoutes from './routes/authRoutes.js'
 import wordRoutes from './routes/wordRoutes.js'
+import userRoutes from './routes/userRoutes.js'
 
 dns.setServers(['8.8.8.8'])
 
@@ -21,6 +22,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/auth', authRoutes)
 app.use('/api/words', wordRoutes)
+app.use('/api/users', userRoutes)
 
 async function startServer() {
     try {

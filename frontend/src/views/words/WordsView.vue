@@ -8,7 +8,7 @@ const route = useRoute()
 const words = ref([])
 const search = ref('')
 const searchResults = ref([])
-const language = ref(route.query.language || '')
+const language = ref(route.query.language || 'English')
 const sort = ref('')
 
 async function loadWords() {
@@ -90,17 +90,20 @@ onMounted(loadWords)
             class="list-group position-absolute w-100"
             style="z-index: 1000;"
         >
-            <RouterLink
-                v-for="result in searchResults"
-                :key="result._id"
-                :to="{
-                    name: 'word-details',
-                    params: { id: result._id }
-                }"
-                class="list-group-item list-group-item-action"
-            >
-                {{ result.word }}
-            </RouterLink>
+      <RouterLink
+            v-for="result in searchResults"
+            :key="result._id"
+            :to="{
+                name: 'word-details',
+                params: { id: result._id },
+                query: {
+                    language: route.query.language || 'English'
+                }
+            }"
+            class="list-group-item list-group-item-action"
+        >
+            {{ result.word }}
+        </RouterLink>
         </div>
         <select
                 v-model="sort"
@@ -114,13 +117,18 @@ onMounted(loadWords)
   
     </div>
 
-    <RouterLink
-        v-if="isAdmin"
-        to="/words/create"
-        class="btn btn-success mb-3"
-    >
-        Create
-    </RouterLink>
+        <RouterLink
+            v-if="isAdmin"
+            :to="{
+                path: '/words/create',
+                query: {
+                    language: route.query.language || 'English'
+                }
+            }"
+            class="btn btn-success mb-3"
+        >
+            Create
+        </RouterLink>
 
     <table class="table table-hover">
         <thead>
@@ -140,19 +148,27 @@ onMounted(loadWords)
                 <td>{{ word.language }}</td>
 
                 <td>
-                    <RouterLink
+                <RouterLink
                         :to="{
                             name: 'word-details',
-                            params: { id: word._id }
+                            params: { id: word._id },
+                            query: {
+                                language: route.query.language || 'English'
+                            }
                         }"
                         class="btn btn-primary btn-sm me-2"
                     >
                         Details
                     </RouterLink>
 
-                    <RouterLink
+                   <RouterLink
                         v-if="isAdmin"
-                        :to="`/words/${word._id}/edit`"
+                        :to="{
+                            path: `/words/${word._id}/edit`,
+                            query: {
+                                language: route.query.language || 'English'
+                            }
+                        }"
                         class="btn btn-warning btn-sm me-2"
                     >
                         Edit

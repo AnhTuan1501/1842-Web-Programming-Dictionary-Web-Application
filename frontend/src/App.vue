@@ -1,8 +1,10 @@
 <script setup>
-import { useRouter } from 'vue-router'
-import { currentUser, isLoggedIn, isAdmin, logout } from './services/auth'
+import { useRouter, useRoute } from 'vue-router'
+
+import {currentUser,isLoggedIn,isAdmin,logout} from './services/auth'
 
 const router = useRouter()
+const route = useRoute()
 
 function handleLogout() {
     logout()
@@ -11,23 +13,22 @@ function handleLogout() {
 </script>
 
 <template>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">Wordy</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
-                aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <RouterLink to="/" class="nav-link active">Home</RouterLink>
-                    </li>
-                    <li class="nav-item">
-                        <RouterLink class="nav-link" to="/about">About</RouterLink>
-                    </li>
-                   <div class="nav-item dropdown">
+            <RouterLink class="navbar-brand" to="/">
+                Wordy
+            </RouterLink>
+
+            <div class="navbar-nav me-auto">
+                <RouterLink class="nav-link" to="/">
+                    Home
+                </RouterLink>
+
+                <RouterLink class="nav-link" to="/about">
+                    About
+                </RouterLink>
+
+                <div class="nav-item dropdown">
                     <a
                         class="nav-link dropdown-toggle"
                         href="#"
@@ -41,6 +42,9 @@ function handleLogout() {
                         <li>
                             <RouterLink
                                 class="dropdown-item"
+                                :class="{
+                                    active: route.query.language === 'English'
+                                }"
                                 to="/words?language=English"
                             >
                                 English Dictionary
@@ -50,6 +54,9 @@ function handleLogout() {
                         <li>
                             <RouterLink
                                 class="dropdown-item"
+                                :class="{
+                                    active: route.query.language === 'Vietnamese'
+                                }"
                                 to="/words?language=Vietnamese"
                             >
                                 Vietnamese Dictionary
@@ -59,6 +66,9 @@ function handleLogout() {
                         <li>
                             <RouterLink
                                 class="dropdown-item"
+                                :class="{
+                                    active: route.query.language === 'French'
+                                }"
                                 to="/words?language=French"
                             >
                                 French Dictionary
@@ -66,7 +76,6 @@ function handleLogout() {
                         </li>
                     </ul>
                 </div>
-                </ul>
             </div>
 
             <div class="navbar-nav">
@@ -76,7 +85,10 @@ function handleLogout() {
                         ({{ currentUser.role }})
                     </span>
 
-                    <button class="btn btn-outline-danger" @click="handleLogout">
+                    <button
+                        class="btn btn-outline-danger"
+                        @click="handleLogout"
+                    >
                         Logout
                     </button>
                 </template>

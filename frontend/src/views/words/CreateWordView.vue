@@ -1,8 +1,9 @@
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router'
-import { apiCreateWord } from '../../services/wordApi';
+import { ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { apiCreateWord } from '../../services/wordApi'
 
+const route = useRoute()
 const router = useRouter()
 
 const word = ref('')
@@ -17,17 +18,22 @@ async function addWord() {
         errorMessage.value = ''
 
         const response = await apiCreateWord({
-        word: word.value,
-        meaning: meaning.value,
-        example: example.value,
-        synonyms: synonyms.value
-            .split(',')
-            .map(s => s.trim())
-            .filter(Boolean),
-        language: language.value
-    })
+            word: word.value,
+            meaning: meaning.value,
+            example: example.value,
+            synonyms: synonyms.value
+                .split(',')
+                .map(s => s.trim())
+                .filter(Boolean),
+            language: language.value
+        })
 
-        router.push(`/words/${response.data._id}`)
+        router.push({
+            path: `/words/${response.data._id}`,
+            query: {
+                language: route.query.language || 'English'
+            }
+        })
     } catch (error) {
         errorMessage.value =
             error.response?.data?.errors?.join(' ') ||
@@ -36,6 +42,14 @@ async function addWord() {
     }
 }
 
+function cancelCreate() {
+    router.push({
+        path: '/words',
+        query: {
+            language: route.query.language || 'English'
+        }
+    })
+}
 </script>
 
 <template>
@@ -76,7 +90,9 @@ async function addWord() {
 
         <div class="mb-3">
             <button type="submit" class="btn btn-success me-2">Create</button>
-            <RouterLink to="/words" class="btn btn-primary me-2">Cancel</RouterLink>
-        </div>
+                <button type="button" class="btn btn-primary me-2" @click="cancelCreate">
+                    Cancel
+                </button>
+            </div>
     </form>
 </template>

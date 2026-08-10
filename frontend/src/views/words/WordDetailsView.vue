@@ -1,14 +1,42 @@
 <script setup>
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { ref, onMounted } from 'vue'
 import { apiGetWord } from '../../services/wordApi';
+import {apiGetFavourites, apiAddFavourite, apiRemoveFavourite } from '../../services/userApi'
 
 const route = useRoute()
+const router = useRouter()  
 const word = ref(null)
+const isFavourite = ref(false)
 
 async function loadWord() {
     const response = await apiGetWord(route.params.id)
     word.value = response.data
+
+    const favourites = await apiGetFavourites()
+
+    isFavourite.value = favourites.data.some(
+        item => item._id === word.value._id
+    )
+}
+
+async function toggleFavourite() {
+    if (isFavourite.value) {
+        await apiRemoveFavourite(word.value._id)
+        isFavourite.value = false
+    } else {
+        await apiAddFavourite(word.value._id)
+        isFavourite.value = true
+    }
+}
+
+function goBackToDictionary() {
+    router.push({
+        path: '/words',
+        query: {
+            language: route.query.language || 'English'
+        }
+    })
 }
 
 onMounted(loadWord)
@@ -17,10 +45,14 @@ onMounted(loadWord)
 <template>
     <h1>Word Details</h1>
     <div v-if="word">
-        <div> 
-            <strong>ID: </strong> {{ word._id }} 
-        </div>
-        <div>     
+        <button
+            class="btn btn-outline-warning"
+            @click="toggleFavourite"
+        >
+            {{ isFavourite ? '♥ Favourite' : '♡ Add to Favourite' }}
+        </button>
+
+        <div>  
             <strong>Word: </strong>{{ word.word }}
         </div>
         <div>     
@@ -40,7 +72,5 @@ onMounted(loadWord)
 
     <div v-else>Word Not Found !!!</div>
 
-    <div>
-        <RouterLink to="/words">Back</RouterLink>
-    </div>
+   <button type="button" class="btn btn-primary" @click="goBackToDictionary"> Back </button>
 </template>
