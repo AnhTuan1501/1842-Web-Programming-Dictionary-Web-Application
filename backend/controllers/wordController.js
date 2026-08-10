@@ -6,7 +6,7 @@ import Word from "../models/wordModel.js";
 // GET /api/words
 export async function getAllWords(req, res) {
     try {
-        const { search } = req.query
+        const { search, language } = req.query
         const filter = {}
 
         if (search) {
@@ -16,6 +16,10 @@ export async function getAllWords(req, res) {
                 $regex: `^${escapedSearch}`,
                 $options: 'i'
             }
+        }
+
+        if (language) {
+            filter.language = language
         }
 
         const words = await Word.find(filter)
