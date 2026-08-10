@@ -5,11 +5,21 @@ import { createAuditLog } from './auditLogController.js'
 // GET /api/words
 export async function getAllWords(req, res) {
     try {
-        const { search, language } = req.query
+        const {
+            search,
+            language,
+            page = 1,
+            limit = 10,
+            sort
+        } = req.query
+
         const filter = {}
 
         if (search) {
-            const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+            const escapedSearch = search.replace(
+                /[.*+?^${}()|[\]\\]/g,
+                '\\$&'
+            )
 
             filter.word = {
                 $regex: `^${escapedSearch}`,
@@ -21,9 +31,33 @@ export async function getAllWords(req, res) {
             filter.language = language
         }
 
-        const words = await Word.find(filter)
+        const skip = (page - 1) * limit
 
-        res.json(words)
+        const totalWords = await Word.countDocuments(filter)
+
+        let query = Word.find(filter)
+
+        if (sort === 'az') {
+            query = query.sort({ word: 1 })
+        }
+
+        if (sort === 'za') {
+            query = query.sort({ word: -1 })
+        }
+
+        const words = await query
+            .skip(skip)
+            .limit(Number(limit))
+
+        res.json({
+            words,
+            page: Number(page),
+            limit: Number(limit),
+            totalWords,
+            totalPages: Math.ceil(
+                totalWords / limit
+            )
+        })
     } catch (error) {
         res.status(500).json({
             message: 'Cannot retrieve words.',

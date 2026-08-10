@@ -1,10 +1,19 @@
 import api from './api'
 
-export function apiGetWords(search = '', language = '') {
+export function apiGetWords(
+    search = '',
+    language = '',
+    page = 1,
+    limit = 10,
+    sort = ''
+) {
     return api.get('/words', {
         params: {
             search,
-            language
+            language,
+            page,
+            limit,
+            sort
         }
     })
 }

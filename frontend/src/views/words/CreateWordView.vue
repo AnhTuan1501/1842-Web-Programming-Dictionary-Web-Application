@@ -2,11 +2,10 @@
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { apiCreateWord } from '../../services/wordApi'
-
 const route = useRoute()
 const router = useRouter()
-
 const word = ref('')
+const pronunciation = ref('')
 const meaning = ref('')
 const example = ref('')
 const synonyms = ref('')
@@ -19,6 +18,7 @@ async function addWord() {
 
         const response = await apiCreateWord({
             word: word.value,
+            pronunciation: pronunciation.value,
             meaning: meaning.value,
             example: example.value,
             synonyms: synonyms.value
@@ -31,7 +31,9 @@ async function addWord() {
         router.push({
             path: `/words/${response.data._id}`,
             query: {
-                language: route.query.language || 'English'
+                language:
+                    route.query.language ||
+                    'English'
             }
         })
     } catch (error) {
@@ -46,12 +48,13 @@ function cancelCreate() {
     router.push({
         path: '/words',
         query: {
-            language: route.query.language || 'English'
+            language:
+                route.query.language ||
+                'English'
         }
     })
 }
 </script>
-
 <template>
     <h1>Create Word</h1>
     <div v-if="errorMessage" class="alert alert-danger">
@@ -61,6 +64,24 @@ function cancelCreate() {
         <div class="mb-3">
             <label for="">Word</label>
             <input type="text" v-model="word" class="form-control">
+        </div>
+        
+        <div class="mb-3">
+            <label class="form-label">
+                Pronunciation
+            </label>
+
+            <input
+                v-model="pronunciation"
+                type="text"
+                class="form-control"
+                placeholder="e.g. /əˈbændən/"
+                maxlength="100"
+            >
+
+            <small class="text-muted">
+                Enter the pronunciation using IPA notation.
+            </small>
         </div>
 
         <div class="mb-3">

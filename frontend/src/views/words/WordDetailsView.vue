@@ -74,46 +74,193 @@ async function submitReport() {
     }
 }
 
+function speakWord() {
+    if (!word.value?.word) {
+        return
+    }
+
+    window.speechSynthesis.cancel()
+
+    const utterance =
+        new SpeechSynthesisUtterance(
+            word.value.word
+        )
+
+    if (word.value.language === 'English') {
+        utterance.lang = 'en-US'
+    }
+
+    if (word.value.language === 'Vietnamese') {
+        utterance.lang = 'vi-VN'
+    }
+
+    if (word.value.language === 'French') {
+        utterance.lang = 'fr-FR'
+    }
+
+    window.speechSynthesis.speak(
+        utterance
+    )
+}
+
 onMounted(loadWord)
 </script>
 
 <template>
-    <div>
-        <h1>Word Details</h1>
+    <div class="page-container">
 
+        <!-- Word Found -->
         <div v-if="word">
-            <!-- Actions -->
-            <div
-                v-if="isLoggedIn"
-                class="d-flex gap-2 mb-3"
-            >
-                <button
-                    type="button"
-                    class="btn btn-outline-danger"
-                    @click="showReportForm = !showReportForm"
-                >
-                    ⚠ Report an Issue
-                </button>
 
-                <button
-                    type="button"
-                    class="btn btn-outline-warning"
-                    @click="toggleFavourite"
+            <!-- Word Information -->
+            <div class="word-detail">
+
+                <!-- Word Header -->
+                <div class="word-detail-header">
+
+                    <h1 class="word-detail-word">
+                        {{ word.word }}
+                    </h1>
+
+                    <div
+                        v-if="word.pronunciation"
+                        class="word-detail-pronunciation"
+                    >
+                        {{ word.pronunciation }}
+
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-outline-primary ms-2"
+                            @click="speakWord"
+                        >
+                            🔊 Listen
+                        </button>
+                    </div>
+
+                </div>
+
+                <hr>
+
+                <!-- Meaning -->
+                <div class="word-detail-section">
+
+                    <h6>
+                        Meaning
+                    </h6>
+
+                    <p class="word-detail-meaning">
+                        {{ word.meaning }}
+                    </p>
+
+                </div>
+
+                <!-- Example -->
+                <div
+                    v-if="word.example"
+                    class="word-detail-section"
                 >
-                    {{ isFavourite ? '♥ Favourite' : '♡ Add to Favourite' }}
-                </button>
+
+                    <h6>
+                        Example
+                    </h6>
+
+                    <p class="word-detail-example">
+                        "{{ word.example }}"
+                    </p>
+
+                </div>
+
+                <!-- Synonyms -->
+                <div
+                    v-if="word.synonyms?.length"
+                    class="word-detail-section"
+                >
+
+                    <h6>
+                        Synonyms
+                    </h6>
+
+                    <div class="d-flex flex-wrap gap-2">
+
+                        <span
+                            v-for="synonym in word.synonyms"
+                            :key="synonym"
+                            class="badge text-bg-light border"
+                        >
+                            {{ synonym }}
+                        </span>
+
+                    </div>
+
+                </div>
+        
+                <!-- Language -->
+                <div class="word-detail-section">
+
+                    <h6>
+                        Language
+                    </h6>
+
+                    <span class="badge bg-primary">
+                        {{ word.language }}
+                    </span>
+
+                </div>
+      
+                <!-- Actions -->
+                <div class="word-detail-actions" gap-3>
+
+                    <!-- Back -->
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        @click="goBackToDictionary"
+                    >
+                        ← Back
+                    </button>
+
+                    <!-- Favourite -->
+                    <button
+                        v-if="isLoggedIn"
+                        type="button"
+                        class="btn btn-outline-warning"
+                        @click="toggleFavourite"
+                    >
+                        {{
+                            isFavourite
+                                ? '♥ Favourite'
+                                : '♡ Add to Favourite'
+                        }}
+                    </button>
+
+                    <!-- Report -->
+                    <button
+                        v-if="isLoggedIn"
+                        type="button"
+                        class="btn btn-outline-danger"
+                        @click="showReportForm = !showReportForm"
+                    >
+                        ⚠ Report an Issue
+                    </button>
+
+                </div>
+
             </div>
+
 
             <!-- Report Form -->
             <div
                 v-if="showReportForm"
-                class="card mb-3"
+                class="card mt-3 mb-3"
             >
+
                 <div class="card-body">
+
                     <h5 class="card-title">
                         Report Vocabulary Issue
                     </h5>
 
+                    <!-- Report Error -->
                     <div
                         v-if="reportError"
                         class="alert alert-danger"
@@ -121,6 +268,7 @@ onMounted(loadWord)
                         {{ reportError }}
                     </div>
 
+                    <!-- Report Success -->
                     <div
                         v-if="reportMessage"
                         class="alert alert-success"
@@ -128,7 +276,9 @@ onMounted(loadWord)
                         {{ reportMessage }}
                     </div>
 
+                    <!-- Reason -->
                     <div class="mb-3">
+
                         <label class="form-label">
                             Reason
                         </label>
@@ -137,6 +287,7 @@ onMounted(loadWord)
                             v-model="reportReason"
                             class="form-select"
                         >
+
                             <option value="">
                                 Select reason
                             </option>
@@ -160,10 +311,14 @@ onMounted(loadWord)
                             <option value="Other">
                                 Other
                             </option>
+
                         </select>
+
                     </div>
 
+                    <!-- Description -->
                     <div class="mb-3">
+
                         <label class="form-label">
                             Description
                         </label>
@@ -174,8 +329,10 @@ onMounted(loadWord)
                             rows="4"
                             placeholder="Describe the issue..."
                         ></textarea>
+
                     </div>
 
+                    <!-- Report Buttons -->
                     <button
                         type="button"
                         class="btn btn-danger me-2"
@@ -191,56 +348,35 @@ onMounted(loadWord)
                     >
                         Cancel
                     </button>
+
                 </div>
+
             </div>
 
-            <!-- Word Information -->
-            <div>
-                <div>
-                    <strong>Word: </strong>
-                    {{ word.word }}
-                </div>
-
-                <div>
-                    <strong>Meaning: </strong>
-                    {{ word.meaning }}
-                </div>
-
-                <div>
-                    <strong>Example: </strong>
-                    {{ word.example }}
-                </div>
-
-                <div>
-                    <strong>Synonyms: </strong>
-
-                    <span
-                        v-for="(synonym, index) in word.synonyms"
-                        :key="synonym"
-                    >
-                        {{ synonym }}<span
-                            v-if="index < word.synonyms.length - 1"
-                        >, </span>
-                    </span>
-                </div>
-
-                <div>
-                    <strong>Language: </strong>
-                    {{ word.language }}
-                </div>
-            </div>
         </div>
 
-        <div v-else>
-            Word Not Found !!!
-        </div>
 
-        <button
-            type="button"
-            class="btn btn-primary mt-3"
-            @click="goBackToDictionary"
+        <!-- Word Not Found -->
+        <div
+            v-else
+            class="empty-state"
         >
-            Back
-        </button>
+            <h4>
+                Word Not Found
+            </h4>
+
+            <p>
+                The requested word could not be found.
+            </p>
+
+            <button
+                type="button"
+                class="btn btn-primary"
+                @click="goBackToDictionary"
+            >
+                ← Back to Dictionary
+            </button>
+        </div>
+
     </div>
 </template>

@@ -11,6 +11,12 @@ const wordSchema = new mongoose.Schema(
             maxlength: 100,
             match: /^[A-Za-zÀ-ỹ][A-Za-zÀ-ỹ0-9\s'’+.-]*$/
             },
+            
+        pronunciation: {
+            type: String,
+            trim: true,
+            maxlength: 100
+        },
 
         meaning: {
             type: String,

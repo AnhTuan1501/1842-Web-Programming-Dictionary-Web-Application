@@ -1,22 +1,13 @@
 <script setup>
 import { ref } from 'vue'
-
-import {
-    apiGetFavourites,
-    apiGetRecents
-} from '../../services/userApi'
-
-import {
-    apiGetWords
-} from '../../services/wordApi'
-
+import {apiGetFavourites,apiGetRecents} from '../../services/userApi'
+import { apiGetWords} from '../../services/wordApi'
 import FlashcardSection from './FlashcardSection.vue'
 import QuizSection from './QuizSection.vue'
 
 const selectedLanguage = ref('')
 const selectedSource = ref('')
 const selectedMode = ref('')
-
 const words = ref([])
 const errorMessage = ref('')
 
@@ -52,10 +43,14 @@ async function loadWords(source) {
         if (source === 'all') {
             const response = await apiGetWords(
                 '',
-                selectedLanguage.value
+                selectedLanguage.value,
+                1,
+                1000
             )
 
-            words.value = response.data.slice(0, 20)
+            words.value = [...response.data.words]
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 20)
         }
     } catch (error) {
         console.error(
