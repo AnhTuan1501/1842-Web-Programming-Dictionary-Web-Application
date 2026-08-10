@@ -31,3 +31,7 @@ export async function apiCreateReport(wordId, reason, description) {
 export async function apiGetMyReports() {
     return api.get('/reports/my')
 }
+
+export async function apiGetUsers() {
+    return api.get('/users')
+}

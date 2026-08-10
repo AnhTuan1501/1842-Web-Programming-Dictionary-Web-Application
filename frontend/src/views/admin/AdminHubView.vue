@@ -3,6 +3,7 @@ import { ref } from 'vue'
 
 import AuditLogsSection from './AuditLogsSection.vue'
 import ReportHandlingSection from './ReportHandlingSection.vue'
+import UserManagementSection from './UserManagementSection.vue'
 
 const activeSection = ref('')
 </script>
@@ -14,6 +15,7 @@ const activeSection = ref('')
         </h1>
 
         <div class="row g-3">
+            <!-- User Management -->
             <div class="col-md-4">
                 <div class="card h-100">
                     <div class="card-body">
@@ -27,15 +29,16 @@ const activeSection = ref('')
 
                         <button
                             type="button"
-                            class="btn btn-secondary"
-                            disabled
+                            class="btn btn-primary"
+                            @click="activeSection = 'users'"
                         >
-                            Coming Soon
+                            View Users
                         </button>
                     </div>
                 </div>
             </div>
 
+            <!-- Report Handling -->
             <div class="col-md-4">
                 <div class="card h-100">
                     <div class="card-body">
@@ -58,6 +61,7 @@ const activeSection = ref('')
                 </div>
             </div>
 
+            <!-- Audit Logs -->
             <div class="col-md-4">
                 <div class="card h-100">
                     <div class="card-body">
@@ -81,6 +85,17 @@ const activeSection = ref('')
             </div>
         </div>
 
+        <!-- User Management Section -->
+        <div
+            v-if="activeSection === 'users'"
+            class="mt-5"
+        >
+            <hr class="mb-5">
+
+            <UserManagementSection />
+        </div>
+
+        <!-- Report Handling Section -->
         <div
             v-if="activeSection === 'reports'"
             class="mt-5"
@@ -90,6 +105,7 @@ const activeSection = ref('')
             <ReportHandlingSection />
         </div>
 
+        <!-- Audit Logs Section -->
         <div
             v-if="activeSection === 'audit'"
             class="mt-5"

@@ -117,3 +117,19 @@ export async function getRecents(req, res) {
         })
     }
 }
+
+// GET /api/users
+export async function getAllUsers(req, res) {
+    try {
+        const users = await User.find()
+            .select('-password')
+            .sort({ name: 1 })
+
+        res.json(users)
+    } catch (error) {
+        res.status(500).json({
+            message: 'Cannot retrieve users.',
+            error: error.message
+        })
+    }
+}

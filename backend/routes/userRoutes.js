@@ -1,14 +1,9 @@
 import express from 'express'
 
-import {
-    addFavourite,
-    removeFavourite,
-    getFavourites,
-    addRecent,
-    getRecents
-} from '../controllers/userController.js'
+import { addFavourite,removeFavourite,  getFavourites, addRecent, getRecents, getAllUsers} from '../controllers/userController.js'
 
-import { protect } from '../middleware/authMiddleware.js'
+import { protect, authorize } from '../middleware/authMiddleware.js'
+
 
 const router = express.Router()
 
@@ -43,3 +38,11 @@ router.get(
 )
 
 export default router
+
+// GET /api/users
+router.get(
+    '/',
+    protect,
+    authorize('admin'),
+    getAllUsers
+)
