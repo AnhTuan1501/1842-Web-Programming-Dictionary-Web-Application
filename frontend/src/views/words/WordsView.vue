@@ -1,29 +1,32 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
-import { apiGetWords, apiDeleteWord } from '../../services/wordApi'
-import { isAdmin } from '../../services/auth'
 import { useRoute } from 'vue-router'
 
+import { apiGetWords, apiDeleteWord } from '../../services/wordApi'
+import { apiGetRecents, apiGetFavourites } from '../../services/userApi'
+import { isAdmin, isLoggedIn } from '../../services/auth'
+
 const route = useRoute()
+
 const words = ref([])
 const search = ref('')
 const searchResults = ref([])
 const language = ref(route.query.language || 'English')
 const sort = ref('')
+const filter = ref('all')
 
 async function loadWords() {
-    const response = await apiGetWords('', language.value)
-    words.value = response.data
+    console.log('LOAD WORDS:', language.value)
 
-    watch(
-    () => route.query.language,
-    async (newLanguage) => {
-        language.value = newLanguage || ''
-
+    try {
         const response = await apiGetWords('', language.value)
+
+        console.log('RESPONSE:', response)
+
         words.value = response.data
+    } catch (error) {
+        console.error('LOAD WORDS ERROR:', error)
     }
-)
 }
 
 let searchTimeout = null
@@ -36,11 +39,13 @@ function handleSearch() {
             searchResults.value = []
             return
         }
-    const response = await apiGetWords(
-        search.value,
-        language.value
-    )
-    searchResults.value = response.data
+
+        const response = await apiGetWords(
+            search.value,
+            language.value
+        )
+
+        searchResults.value = response.data
     }, 100)
 }
 
@@ -58,6 +63,38 @@ function handleSort() {
     }
 }
 
+async function handleFilter() {
+    const currentLanguage = language.value
+
+    if (filter.value === 'all') {
+        await loadWords()
+        return
+    }
+
+    if (!isLoggedIn.value) {
+        words.value = []
+        return
+    }
+
+    if (filter.value === 'recent') {
+        const response = await apiGetRecents()
+
+        words.value = response.data.filter(
+            word => word.language === currentLanguage
+        )
+
+        return
+    }
+
+    if (filter.value === 'favourite') {
+        const response = await apiGetFavourites()
+
+        words.value = response.data.filter(
+            word => word.language === currentLanguage
+        )
+    }
+}
+
 async function removeWord(id) {
     const confirmed = confirm('Are you sure to delete this word?')
 
@@ -70,6 +107,17 @@ async function removeWord(id) {
         word => word._id !== id
     )
 }
+
+watch(
+    () => route.query.language,
+    async (newLanguage) => {
+        language.value = newLanguage || 'English'
+        filter.value = 'all'
+        sort.value = ''
+
+        await loadWords()
+    }
+)
 
 onMounted(loadWords)
 </script>
@@ -105,16 +153,31 @@ onMounted(loadWords)
             {{ result.word }}
         </RouterLink>
         </div>
-        <select
+        <div class="row g-2 mb-3">
+        <div class="col-md-6">
+            <select
                 v-model="sort"
                 @change="handleSort"
-                class="form-select mb-3"
+                class="form-select"
             >
                 <option value="">Default Order</option>
                 <option value="az">A → Z</option>
                 <option value="za">Z → A</option>
-        </select>
-  
+            </select>
+        </div>
+
+        <div class="col-md-6">
+            <select
+                v-model="filter"
+                @change="handleFilter"
+                class="form-select"
+            >
+                <option value="all">All Words</option>
+                <option value="recent">Recent Words</option>
+                <option value="favourite">Favourite Words</option>
+            </select>
+        </div>
+    </div>
     </div>
 
         <RouterLink

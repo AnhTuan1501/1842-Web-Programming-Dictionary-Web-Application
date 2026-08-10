@@ -2,7 +2,8 @@
 import { useRoute, useRouter } from 'vue-router';
 import { ref, onMounted } from 'vue'
 import { apiGetWord } from '../../services/wordApi';
-import {apiGetFavourites, apiAddFavourite, apiRemoveFavourite } from '../../services/userApi'
+import {apiGetFavourites, apiAddFavourite, apiRemoveFavourite, apiAddRecent, apiGetRecents } from '../../services/userApi'
+import { isLoggedIn } from '../../services/auth'
 
 const route = useRoute()
 const router = useRouter()  
@@ -11,13 +12,18 @@ const isFavourite = ref(false)
 
 async function loadWord() {
     const response = await apiGetWord(route.params.id)
+
     word.value = response.data
 
-    const favourites = await apiGetFavourites()
+    if (isLoggedIn.value) {
+        await apiAddRecent(word.value._id)
 
-    isFavourite.value = favourites.data.some(
-        item => item._id === word.value._id
-    )
+        const favourites = await apiGetFavourites()
+
+        isFavourite.value = favourites.data.some(
+            item => item._id === word.value._id
+        )
+    }
 }
 
 async function toggleFavourite() {

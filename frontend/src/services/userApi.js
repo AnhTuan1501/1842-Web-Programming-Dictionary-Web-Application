@@ -11,3 +11,11 @@ export function apiAddFavourite(wordId) {
 export function apiRemoveFavourite(wordId) {
     return api.delete(`/users/favourites/${wordId}`)
 }
+
+export async function apiAddRecent(wordId) {
+    return api.post(`/users/recent/${wordId}`)
+}
+
+export async function apiGetRecents() {
+    return api.get('/users/recent')
+}

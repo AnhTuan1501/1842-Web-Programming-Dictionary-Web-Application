@@ -3,7 +3,9 @@ import express from 'express'
 import {
     addFavourite,
     removeFavourite,
-    getFavourites
+    getFavourites,
+    addRecent,
+    getRecents
 } from '../controllers/userController.js'
 
 import { protect } from '../middleware/authMiddleware.js'
@@ -26,5 +28,18 @@ router
         protect,
         removeFavourite
     )
+
+router
+    .route('/recent/:wordId')
+    .post(
+        protect,
+        addRecent
+    )
+
+router.get(
+    '/recent',
+    protect,
+    getRecents
+)
 
 export default router
