@@ -1,6 +1,6 @@
 import express from 'express'
 
-import { getAllWords, getWordById, createWord, updateWord, deleteWord } from '../controllers/wordController.js'
+import { getAllWords, getWordById, createWord, updateWord, deleteWord, bulkDeleteWords } from '../controllers/wordController.js'
 import { protect, authorize } from '../middleware/authMiddleware.js'
 
 const router = express.Router()
@@ -13,6 +13,14 @@ router
         authorize('admin'),
         createWord
     )
+
+// DELETE /api/words/bulk
+router.delete(
+    '/bulk',
+    protect,
+    authorize('admin'),
+    bulkDeleteWords
+)
 
 router
     .route('/:id')
@@ -27,5 +35,4 @@ router
         authorize('admin'),
         deleteWord
     )
-
 export default router

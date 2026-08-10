@@ -24,3 +24,11 @@ export function apiEditWord(id, wordData) {
 export function apiDeleteWord(id) {
     return api.delete(`/words/${id}`)
 }
+
+export async function apiBulkDeleteWords(ids) {
+    return api.delete('/words/bulk', {
+        data: {
+            ids
+        }
+    })
+}

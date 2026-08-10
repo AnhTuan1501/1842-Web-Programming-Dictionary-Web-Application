@@ -171,3 +171,36 @@ export async function deleteWord(req, res) {
         })
     }
 }
+
+// DELETE /api/words/bulk
+export async function bulkDeleteWords(req, res) {
+    try {
+        const { ids } = req.body
+
+        if (!Array.isArray(ids) || ids.length === 0) {
+            return res.status(400).json({
+                message: 'No words selected.'
+            })
+        }
+
+        const result = await Word.deleteMany({
+            _id: { $in: ids }
+        })
+
+        await createAuditLog({
+            userId: req.user._id,
+            action: 'BULK_DELETE',
+            details: `Deleted ${result.deletedCount} word(s).`
+        })
+
+        res.json({
+            message: 'Words deleted successfully.',
+            deletedCount: result.deletedCount
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: 'Cannot delete selected words.',
+            error: error.message
+        })
+    }
+}
