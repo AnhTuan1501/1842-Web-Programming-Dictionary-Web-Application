@@ -1,16 +1,29 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { apiGetWords, apiDeleteWord } from '../../services/wordApi'
 import { isAdmin } from '../../services/auth'
+import { useRoute } from 'vue-router'
 
+const route = useRoute()
 const words = ref([])
 const search = ref('')
 const searchResults = ref([])
-const language = ref('')
+const language = ref(route.query.language || '')
+const sort = ref('')
 
 async function loadWords() {
     const response = await apiGetWords('', language.value)
     words.value = response.data
+
+    watch(
+    () => route.query.language,
+    async (newLanguage) => {
+        language.value = newLanguage || ''
+
+        const response = await apiGetWords('', language.value)
+        words.value = response.data
+    }
+)
 }
 
 let searchTimeout = null
@@ -31,13 +44,18 @@ function handleSearch() {
     }, 100)
 }
 
-async function handleLanguageChange() {
-    console.log('LANGUAGE:', language.value)
+function handleSort() {
+    if (sort.value === 'az') {
+        words.value = [...words.value].sort((a, b) =>
+            a.word.localeCompare(b.word)
+        )
+    }
 
-    const response = await apiGetWords('', language.value)
-    console.log('RESULT:', response.data)
-
-    words.value = response.data
+    if (sort.value === 'za') {
+        words.value = [...words.value].sort((a, b) =>
+            b.word.localeCompare(a.word)
+        )
+    }
 }
 
 async function removeWord(id) {
@@ -57,6 +75,7 @@ onMounted(loadWords)
 </script>
 
 <template>
+       <h2> {{ language || 'Dictionary' }} Dictionary </h2>
     <div class="position-relative mb-3">
         <input
             type="text"
@@ -83,17 +102,16 @@ onMounted(loadWords)
                 {{ result.word }}
             </RouterLink>
         </div>
-
         <select
-            v-model="language"
-            @change="handleLanguageChange"
-            class="form-select"
-        >
-            <option value="">All Languages</option>
-            <option value="English">English</option>
-            <option value="Vietnamese">Vietnamese</option>
-            <option value="French">French</option>
+                v-model="sort"
+                @change="handleSort"
+                class="form-select mb-3"
+            >
+                <option value="">Default Order</option>
+                <option value="az">A → Z</option>
+                <option value="za">Z → A</option>
         </select>
+  
     </div>
 
     <RouterLink

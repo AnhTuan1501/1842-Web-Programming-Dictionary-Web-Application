@@ -27,9 +27,45 @@ function handleLogout() {
                     <li class="nav-item">
                         <RouterLink class="nav-link" to="/about">About</RouterLink>
                     </li>
-                    <li class="nav-item">
-                        <RouterLink class="nav-link" to="/words">Dictionary</RouterLink>
-                    </li>
+                   <div class="nav-item dropdown">
+                    <a
+                        class="nav-link dropdown-toggle"
+                        href="#"
+                        role="button"
+                        data-bs-toggle="dropdown"
+                    >
+                        Dictionary
+                    </a>
+
+                    <ul class="dropdown-menu">
+                        <li>
+                            <RouterLink
+                                class="dropdown-item"
+                                to="/words?language=English"
+                            >
+                                English Dictionary
+                            </RouterLink>
+                        </li>
+
+                        <li>
+                            <RouterLink
+                                class="dropdown-item"
+                                to="/words?language=Vietnamese"
+                            >
+                                Vietnamese Dictionary
+                            </RouterLink>
+                        </li>
+
+                        <li>
+                            <RouterLink
+                                class="dropdown-item"
+                                to="/words?language=French"
+                            >
+                                French Dictionary
+                            </RouterLink>
+                        </li>
+                    </ul>
+                </div>
                 </ul>
             </div>
 
