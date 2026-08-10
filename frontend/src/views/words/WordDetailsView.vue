@@ -1,47 +1,95 @@
 <script setup>
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router'
 import { ref, onMounted } from 'vue'
-import { apiGetWord } from '../../services/wordApi';
-import {apiGetFavourites, apiAddFavourite, apiRemoveFavourite, apiAddRecent, apiCreateReport } from '../../services/userApi'
-import { isLoggedIn } from '../../services/auth'
+
+import { apiGetWord } from '../../services/wordApi'
+
+import {
+    apiGetFavourites,
+    apiAddFavourite,
+    apiRemoveFavourite,
+    apiAddRecent,
+    apiCreateReport
+} from '../../services/userApi'
+
+import {
+    isLoggedIn,
+    isAdmin
+} from '../../services/auth'
+
 
 const route = useRoute()
-const router = useRouter()  
+const router = useRouter()
+
 const word = ref(null)
+
 const isFavourite = ref(false)
+
 const showReportForm = ref(false)
 const reportReason = ref('')
 const reportDescription = ref('')
 const reportMessage = ref('')
 const reportError = ref('')
 
+
 async function loadWord() {
-    const response = await apiGetWord(route.params.id)
 
-    word.value = response.data
+    try {
 
-    if (isLoggedIn.value) {
-        await apiAddRecent(word.value._id)
+        const response = await apiGetWord(route.params.id)
 
-        const favourites = await apiGetFavourites()
+        word.value = response.data
 
-        isFavourite.value = favourites.data.some(
-            item => item._id === word.value._id
-        )
+        if (isLoggedIn.value && !isAdmin.value) {
+
+            await apiAddRecent(word.value._id)
+
+            const favourites = await apiGetFavourites()
+
+            isFavourite.value = favourites.data.some(
+                item => item._id === word.value._id
+            )
+        }
+
+    } catch (error) {
+
+        console.error('Failed to load word:', error)
+
+        word.value = null
     }
 }
+
 
 async function toggleFavourite() {
-    if (isFavourite.value) {
-        await apiRemoveFavourite(word.value._id)
-        isFavourite.value = false
-    } else {
-        await apiAddFavourite(word.value._id)
-        isFavourite.value = true
+
+    if (!isLoggedIn.value || isAdmin.value) {
+        return
+    }
+
+    try {
+
+        if (isFavourite.value) {
+
+            await apiRemoveFavourite(word.value._id)
+
+            isFavourite.value = false
+
+        } else {
+
+            await apiAddFavourite(word.value._id)
+
+            isFavourite.value = true
+        }
+
+    } catch (error) {
+
+        console.error('Failed to update favourite:', error)
     }
 }
 
+
 function goBackToDictionary() {
+
     router.push({
         path: '/words',
         query: {
@@ -50,8 +98,15 @@ function goBackToDictionary() {
     })
 }
 
+
 async function submitReport() {
+
+    if (!isLoggedIn.value || isAdmin.value) {
+        return
+    }
+
     try {
+
         reportError.value = ''
         reportMessage.value = ''
 
@@ -61,12 +116,16 @@ async function submitReport() {
             reportDescription.value
         )
 
-        reportMessage.value = 'Report submitted successfully.'
+        reportMessage.value =
+            'Report submitted successfully.'
 
         reportReason.value = ''
         reportDescription.value = ''
+
         showReportForm.value = false
+
     } catch (error) {
+
         reportError.value =
             error.response?.data?.errors?.join(' ') ||
             error.response?.data?.message ||
@@ -74,7 +133,9 @@ async function submitReport() {
     }
 }
 
+
 function speakWord() {
+
     if (!word.value?.word) {
         return
     }
@@ -103,11 +164,14 @@ function speakWord() {
     )
 }
 
+
 onMounted(loadWord)
 </script>
 
+
 <template>
-    <div class="page-container">
+
+    <div class="container">
 
         <!-- Word Found -->
         <div v-if="word">
@@ -122,10 +186,12 @@ onMounted(loadWord)
                         {{ word.word }}
                     </h1>
 
+                    <!-- Pronunciation -->
                     <div
                         v-if="word.pronunciation"
                         class="word-detail-pronunciation"
                     >
+
                         {{ word.pronunciation }}
 
                         <button
@@ -135,11 +201,13 @@ onMounted(loadWord)
                         >
                             🔊 Listen
                         </button>
+
                     </div>
 
                 </div>
 
                 <hr>
+
 
                 <!-- Meaning -->
                 <div class="word-detail-section">
@@ -153,6 +221,7 @@ onMounted(loadWord)
                     </p>
 
                 </div>
+
 
                 <!-- Example -->
                 <div
@@ -169,6 +238,7 @@ onMounted(loadWord)
                     </p>
 
                 </div>
+
 
                 <!-- Synonyms -->
                 <div
@@ -193,7 +263,8 @@ onMounted(loadWord)
                     </div>
 
                 </div>
-        
+
+
                 <!-- Language -->
                 <div class="word-detail-section">
 
@@ -206,9 +277,10 @@ onMounted(loadWord)
                     </span>
 
                 </div>
-      
+
+
                 <!-- Actions -->
-                <div class="word-detail-actions" gap-3>
+                <div class="word-detail-actions d-flex gap-3">
 
                     <!-- Back -->
                     <button
@@ -219,9 +291,11 @@ onMounted(loadWord)
                         ← Back
                     </button>
 
+
                     <!-- Favourite -->
+                    <!-- Only normal logged-in users -->
                     <button
-                        v-if="isLoggedIn"
+                        v-if="isLoggedIn && !isAdmin"
                         type="button"
                         class="btn btn-outline-warning"
                         @click="toggleFavourite"
@@ -233,9 +307,11 @@ onMounted(loadWord)
                         }}
                     </button>
 
+
                     <!-- Report -->
+                    <!-- Only normal logged-in users -->
                     <button
-                        v-if="isLoggedIn"
+                        v-if="isLoggedIn && !isAdmin"
                         type="button"
                         class="btn btn-outline-danger"
                         @click="showReportForm = !showReportForm"
@@ -249,8 +325,13 @@ onMounted(loadWord)
 
 
             <!-- Report Form -->
+            <!-- Only normal logged-in users -->
             <div
-                v-if="showReportForm"
+                v-if="
+                    showReportForm &&
+                    isLoggedIn &&
+                    !isAdmin
+                "
                 class="card mt-3 mb-3"
             >
 
@@ -260,6 +341,7 @@ onMounted(loadWord)
                         Report Vocabulary Issue
                     </h5>
 
+
                     <!-- Report Error -->
                     <div
                         v-if="reportError"
@@ -268,6 +350,7 @@ onMounted(loadWord)
                         {{ reportError }}
                     </div>
 
+
                     <!-- Report Success -->
                     <div
                         v-if="reportMessage"
@@ -275,6 +358,7 @@ onMounted(loadWord)
                     >
                         {{ reportMessage }}
                     </div>
+
 
                     <!-- Reason -->
                     <div class="mb-3">
@@ -316,6 +400,7 @@ onMounted(loadWord)
 
                     </div>
 
+
                     <!-- Description -->
                     <div class="mb-3">
 
@@ -331,6 +416,7 @@ onMounted(loadWord)
                         ></textarea>
 
                     </div>
+
 
                     <!-- Report Buttons -->
                     <button
@@ -361,6 +447,7 @@ onMounted(loadWord)
             v-else
             class="empty-state"
         >
+
             <h4>
                 Word Not Found
             </h4>
@@ -376,7 +463,9 @@ onMounted(loadWord)
             >
                 ← Back to Dictionary
             </button>
+
         </div>
 
     </div>
+
 </template>

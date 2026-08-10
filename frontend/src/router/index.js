@@ -123,13 +123,13 @@ router.beforeEach((to) => {
         !to.meta.roles.includes(user?.role)
     ) {
         return {
-            name: 'words'
+            name: 'home'
         }
     }
 
     if (to.meta.guestOnly && user) {
         return {
-            name: 'words'
+            name: 'home'
         }
     }
 })
